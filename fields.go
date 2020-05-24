@@ -1,4 +1,4 @@
-package log
+package logging
 
 // Fields represent that values that can be in the log message.
 type Fields struct {

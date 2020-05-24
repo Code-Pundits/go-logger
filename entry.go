@@ -1,4 +1,4 @@
-package log
+package logging
 
 import (
 	"fmt"
@@ -20,7 +20,7 @@ type Entry struct {
 	// Contains log message
 	Message string
 
-	Logger *Logger
+	Logger *Type
 }
 
 func (entry *Entry) log() {
@@ -44,6 +44,7 @@ func (entry *Entry) write() {
 	entry.Logger.mu.Lock()
 	defer entry.Logger.mu.Unlock()
 
+	entry.Data.Message = entry.Message
 	serialized, err := entry.Logger.Format(entry)
 
 	if err != nil {
@@ -62,7 +63,7 @@ func (entry *Entry) write() {
 }
 
 // NewEntry returns new log entry
-func NewEntry(logger *Logger) *Entry {
+func NewEntry(logger *Type) *Entry {
 	return &Entry{
 		Logger: logger,
 

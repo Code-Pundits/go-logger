@@ -14,7 +14,7 @@ Import following in your code:
 import "github.com/Code-Pundits/go-logger"
 ```
 
-### Canonical example:
+### Std Out Example:
 
 ```go
 package main
@@ -24,17 +24,17 @@ import (
 )
 
 func main() {
-	logger := log.
+	logger := logging.
 		NewLogger().
-		WithLevel(log.InfoLevel).
+		WithLevel(logging.InfoLevel).
 		WithTransports(
-			log.NewStdOutTransport(log.StdOutTransportConfig{Level: log.InfoLevel}),
+			logging.NewStdOutTransport(logging.StdOutTransportConfig{Level: logging.InfoLevel}),
 		).
 		WithDefaults(
-			&log.FieldPair{Name: "Component", Value: "hello-world-service"},
+			&logging.FieldPair{Name: "Component", Value: "hello-world-service"},
 		)
 
-	logger.Info("Hello world")
-	// {"timestamp":"2020-05-22T15:06:22-05:00","component":"api-gateway"}
+	logger.Info("hello world!") 
+	// {"timestamp":"2020-05-23T19:26:59-05:00","severity":"info","component":"hello-world-service","message":"here we are!"}
 }
 ```

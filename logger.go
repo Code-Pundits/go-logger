@@ -1,4 +1,4 @@
-package log
+package logging
 
 import (
 	"encoding/json"
@@ -27,6 +27,20 @@ const (
 var (
 	defaultLevel Level = InfoLevel
 )
+
+// Logger represents a logger interface
+type Logger interface {
+	WithLevel(Level) Logger
+	WithDefaults(...*FieldPair) Logger
+	WithFields(args ...*FieldPair) *Entry
+	WithTransports(...Transport) Logger
+	Info(string)
+	Error(string)
+	Warn(string)
+	Debug(string)
+	Verbose(string)
+	Log(Level, string)
+}
 
 func levelToString(lvl Level) (string, error) {
 	switch lvl {
@@ -64,8 +78,8 @@ func ParseLevel(lvl string) (Level, error) {
 	return l, fmt.Errorf("not a valid log Level: %q", lvl)
 }
 
-// Logger represents the logger type.
-type Logger struct {
+// Type implements the Logger interface.
+type Type struct {
 	// List of transports.
 	transports []Transport
 
@@ -83,23 +97,23 @@ type Logger struct {
 }
 
 // NewLogger returns a new logger instance
-func NewLogger() *Logger {
-	return &Logger{
+func NewLogger() Logger {
+	return &Type{
 		Level:    defaultLevel,
 		Defaults: make([]*FieldPair, 0),
 	}
 }
 
 // WithLevel Sets the log level for logger
-func (l *Logger) WithLevel(lvl Level) *Logger {
-	l.Level = lvl
-	return l
+func (t *Type) WithLevel(lvl Level) Logger {
+	t.Level = lvl
+	return t
 }
 
 // WithTransports takes a variadic number of transports and adds them to the logger tranpsorts
-func (l *Logger) WithTransports(args ...Transport) *Logger {
-	l.transports = append(l.transports, args...)
-	return l
+func (t *Type) WithTransports(args ...Transport) Logger {
+	t.transports = append(t.transports, args...)
+	return t
 }
 
 func isZeroString(s string) bool {
@@ -115,61 +129,61 @@ func isZeroFloat(i float64) bool {
 }
 
 // Info logs message at info level.
-func (l *Logger) Info(msg string) {
-	l.Log(InfoLevel, msg)
+func (t *Type) Info(msg string) {
+	t.Log(InfoLevel, msg)
 }
 
 // Error logs message at error level.
-func (l *Logger) Error(msg string) {
-	l.Log(ErrorLevel, msg)
+func (t *Type) Error(msg string) {
+	t.Log(ErrorLevel, msg)
 }
 
 // Warn logs message at warn level.
-func (l *Logger) Warn(msg string) {
-	l.Log(WarnLevel, msg)
+func (t *Type) Warn(msg string) {
+	t.Log(WarnLevel, msg)
 }
 
 // Debug logs message at debug level.
-func (l *Logger) Debug(msg string) {
-	l.Log(DebugLevel, msg)
+func (t *Type) Debug(msg string) {
+	t.Log(DebugLevel, msg)
 }
 
 // Verbose logs message at verbose level.
-func (l *Logger) Verbose(msg string) {
-	l.Log(VerboseLevel, msg)
+func (t *Type) Verbose(msg string) {
+	t.Log(VerboseLevel, msg)
 }
 
 // newEntry attempts to get an entry from the pool or creates a new one
-func (l *Logger) newEntry() *Entry {
-	entry, ok := l.entryPool.Get().(*Entry)
+func (t *Type) newEntry() *Entry {
+	entry, ok := t.entryPool.Get().(*Entry)
 
 	if ok {
 		return entry
 	}
 
-	return NewEntry(l)
+	return NewEntry(t)
 }
 
 // Log creates a new entry and calls log with level and fields
-func (l *Logger) Log(level Level, msg string) {
-	entry := l.newEntry()
+func (t *Type) Log(level Level, msg string) {
+	entry := t.newEntry()
 	entry.Log(level, msg)
 }
 
 // releaseEntry adds entry back in
-func (l *Logger) releaseEntry(entry *Entry) {
+func (t *Type) releaseEntry(entry *Entry) {
 	// Reset the data fields
 	entry.Data = &Fields{}
 	entry.Time = time.Time{} // Invoking an empty time.Time struct literal will return Go's zero date.
-	l.entryPool.Put(entry)
+	t.entryPool.Put(entry)
 }
 
 // WithDefaults set the default fields for a log entry
-func (l *Logger) WithDefaults(args ...*FieldPair) *Logger {
+func (t *Type) WithDefaults(args ...*FieldPair) Logger {
 	for _, arg := range args {
 		// Check if default exists
 		exists := false
-		for _, f := range l.Defaults {
+		for _, f := range t.Defaults {
 			if arg.Name == f.Name {
 				exists = true
 				// Override the existing default value
@@ -179,27 +193,29 @@ func (l *Logger) WithDefaults(args ...*FieldPair) *Logger {
 		}
 
 		if !exists {
-			l.Defaults = append(l.Defaults, arg)
+			t.Defaults = append(t.Defaults, arg)
 		}
 	}
 
-	return l
+	return t
 }
 
 // Format transforms entry data into a byte array. Can be
 // extended later to include different formatter types
-func (l *Logger) Format(entry *Entry) ([]byte, error) {
+func (t *Type) Format(entry *Entry) ([]byte, error) {
 	entry.Data.Timestamp = entry.Time.Format(time.RFC3339)
 	sev, err := levelToString(entry.Level)
 	if err != nil {
 		return nil, err
 	}
 	entry.Data.Severity = sev
+	fmt.Println("what in the holiest of fucks!")
+	fmt.Println(entry.Data.Message)
 	return json.Marshal(entry.Data)
 }
 
 // WithFields takes field pairs and reutrns an entry
-func (l *Logger) WithFields(args ...*FieldPair) *Entry {
-	entry := l.newEntry()
+func (t *Type) WithFields(args ...*FieldPair) *Entry {
+	entry := t.newEntry()
 	return entry.WithFields(args...)
 }

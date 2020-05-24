@@ -1,17 +1,19 @@
 package main
 
-import log "github.com/Code-Pundits/go-logger"
+import (
+	logging "github.com/Code-Pundits/go-logger"
+)
 
 func main() {
-	logger := log.
+	logger := logging.
 		NewLogger().
-		WithLevel(log.InfoLevel).
+		WithLevel(logging.InfoLevel).
 		WithTransports(
-			log.NewStdOutTransport(log.StdOutTransportConfig{Level: log.InfoLevel}),
+			logging.NewStdOutTransport(logging.StdOutTransportConfig{Level: logging.InfoLevel}),
 		).
 		WithDefaults(
-			&log.FieldPair{Name: "Component", Value: "hello-world-service"},
+			&logging.FieldPair{Name: "Component", Value: "hello-world-service"},
 		)
 
-	logger.Info("here we are!")
+	logger.Info("Hello World!")
 }
