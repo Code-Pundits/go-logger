@@ -35,6 +35,6 @@ func main() {
 		)
 
 	logger.Info("hello world!") 
-	// {"timestamp":"2020-05-23T19:26:59-05:00","severity":"info","component":"hello-world-service","message":"here we are!"}
+	// {"timestamp":"2020-05-23T19:26:59-05:00","severity":"info","component":"hello-world-service","message":"hello world!"}
 }
 ```

@@ -209,8 +209,6 @@ func (t *Type) Format(entry *Entry) ([]byte, error) {
 		return nil, err
 	}
 	entry.Data.Severity = sev
-	fmt.Println("what in the holiest of fucks!")
-	fmt.Println(entry.Data.Message)
 	return json.Marshal(entry.Data)
 }
 

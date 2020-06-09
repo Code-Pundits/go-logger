@@ -7,6 +7,7 @@ type Fields struct {
 	ParentID         string  `json:"parentId,omitempty"`
 	Timestamp        string  `json:"timestamp,omitempty"`
 	Hostname         string  `json:"hostname,omitempty"`
+	Body             string  `json:"body,omitempty"`
 	LogType          string  `json:"type,omitempty"`
 	Facility         string  `json:"facility,omitempty"`
 	Severity         string  `json:"severity,omitempty"`
@@ -100,6 +101,9 @@ func CopyDataFields(data *Fields, args ...*FieldPair) *Fields {
 		}
 		if arg.Name == "BuildNumber" && isZeroInt(data.BuildNumber) {
 			data.BuildNumber = arg.Value.(int)
+		}
+		if arg.Name == "Body" && isZeroString(data.Body) {
+			data.Body = arg.Value.(string)
 		}
 	}
 
