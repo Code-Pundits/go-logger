@@ -2,29 +2,29 @@ package logging
 
 // Fields represent that values that can be in the log message.
 type Fields struct {
-	TraceID          string  `json:"traceId,omitempty"`
-	ID               string  `json:"id,omitempty"`
-	ParentID         string  `json:"parentId,omitempty"`
-	Timestamp        string  `json:"timestamp,omitempty"`
-	Hostname         string  `json:"hostname,omitempty"`
-	Body             string  `json:"body,omitempty"`
-	LogType          string  `json:"type,omitempty"`
-	Facility         string  `json:"facility,omitempty"`
-	Severity         string  `json:"severity,omitempty"`
-	Namespace        string  `json:"namespace,omitempty"`
-	Component        string  `json:"component,omitempty"`
-	Version          string  `json:"version,omitempty"`
-	Message          string  `json:"message,omitempty"`
-	Stack            string  `json:"stackTrace,omitempty"`
-	LineNumber       int     `json:"lineNumber,omitempty"`
-	HTTPMethod       string  `json:"httpMethod,omitempty"`
-	HTTPRoute        string  `json:"httpRoute,omitempty"`
-	Parameters       string  `json:"parameters,omitempty"`
-	HTTPResponseCode int     `json:"httpResponseCode,omitempty"`
-	Duration         float64 `json:"duration,omitempty"`
-	Environment      string  `json:"environment,omitempty"`
-	Subenvironment   string  `json:"subenvironment,omitempty"`
-	BuildNumber      int     `json:"buildNumber,omitempty"`
+	TraceID          string `json:"traceId,omitempty"`
+	ID               string `json:"id,omitempty"`
+	ParentID         string `json:"parentId,omitempty"`
+	Timestamp        string `json:"timestamp,omitempty"`
+	Hostname         string `json:"hostname,omitempty"`
+	Body             string `json:"body,omitempty"`
+	LogType          string `json:"type,omitempty"`
+	Facility         string `json:"facility,omitempty"`
+	Severity         string `json:"severity,omitempty"`
+	Namespace        string `json:"namespace,omitempty"`
+	Component        string `json:"component,omitempty"`
+	Version          string `json:"version,omitempty"`
+	Message          string `json:"message,omitempty"`
+	Stack            string `json:"stackTrace,omitempty"`
+	LineNumber       int    `json:"lineNumber,omitempty"`
+	HTTPMethod       string `json:"httpMethod,omitempty"`
+	HTTPRoute        string `json:"httpRoute,omitempty"`
+	Parameters       string `json:"parameters,omitempty"`
+	HTTPResponseCode int    `json:"httpResponseCode,omitempty"`
+	Duration         int64  `json:"duration,omitempty"`
+	Environment      string `json:"environment,omitempty"`
+	Subenvironment   string `json:"subenvironment,omitempty"`
+	BuildNumber      int    `json:"buildNumber,omitempty"`
 }
 
 // FieldPair represents a key / value for logger field.
@@ -90,8 +90,8 @@ func CopyDataFields(data *Fields, args ...*FieldPair) *Fields {
 		if arg.Name == "HTTPResponseCode" && isZeroInt(data.HTTPResponseCode) {
 			data.HTTPResponseCode = arg.Value.(int)
 		}
-		if arg.Name == "Duration" && isZeroFloat(data.Duration) {
-			data.Duration = arg.Value.(float64)
+		if arg.Name == "Duration" && isZeroInt64(data.Duration) {
+			data.Duration = arg.Value.(int64)
 		}
 		if arg.Name == "Environment" && isZeroString(data.Parameters) {
 			data.Environment = arg.Value.(string)

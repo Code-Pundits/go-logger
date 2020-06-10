@@ -128,6 +128,10 @@ func isZeroFloat(i float64) bool {
 	return i == 0
 }
 
+func isZeroInt64(i int64) bool {
+	return i == 0
+}
+
 // Info logs message at info level.
 func (t *Type) Info(msg string) {
 	t.Log(InfoLevel, msg)
