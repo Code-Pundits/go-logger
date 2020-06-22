@@ -52,11 +52,7 @@ func (entry *Entry) write() {
 		return
 	}
 
-	for _, t := range entry.Logger.transports {
-		if entry.IsLogLevelEnabled(t.GetLogLevel()) {
-			t.Out.Write(serialized)
-		}
-	}
+	entry.Logger.output.Write(serialized)
 
 	// Release the entry once it has written
 	entry.Logger.releaseEntry(entry)

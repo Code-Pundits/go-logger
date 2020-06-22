@@ -3,6 +3,7 @@ package logging
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"strings"
 	"sync"
 	"time"
@@ -34,6 +35,7 @@ type Logger interface {
 	WithDefaults(...*FieldPair) Logger
 	WithFields(args ...*FieldPair) *Entry
 	WithTransports(...Transport) Logger
+	Output() io.Writer
 	Info(string)
 	Error(string)
 	Warn(string)
@@ -78,22 +80,25 @@ func ParseLevel(lvl string) (Level, error) {
 	return l, fmt.Errorf("not a valid log Level: %q", lvl)
 }
 
-// Type implements the Logger interface.
+// Type implements the Logger interface
 type Type struct {
-	// List of transports.
+	// List of transports
 	transports []Transport
 
-	// The logging level the logger should log at.
+	// The logging level the logger should log at
 	Level Level
 
-	// Used for syncing transport writing.
+	// Used for syncing transport writing
 	mu sync.Mutex
 
-	// Reusable empty entry for managing multiple concurrent items.
+	// Reusable empty entry for managing multiple concurrent items
 	entryPool sync.Pool
 
-	// Default log fields.
+	// Default log fields
 	Defaults []*FieldPair
+
+	// Logger interface output writer
+	output io.Writer
 }
 
 // NewLogger returns a new logger instance
@@ -110,9 +115,23 @@ func (t *Type) WithLevel(lvl Level) Logger {
 	return t
 }
 
+func (t *Type) Output() io.Writer {
+	return t.output
+}
+
 // WithTransports takes a variadic number of transports and adds them to the logger tranpsorts
 func (t *Type) WithTransports(args ...Transport) Logger {
 	t.transports = append(t.transports, args...)
+	outs := make([]io.Writer, len(args))
+
+	for i, a := range args {
+		outs[i] = a.Out
+	}
+
+	if t.output != nil {
+		outs = append(outs, t.output)
+	}
+	t.output = io.MultiWriter(outs...)
 	return t
 }
 
